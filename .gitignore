@@ -1,0 +1,26 @@
+# Secrets and environments
+.env
+venv/
+__pycache__/
+*.pyc
+
+# Data (do not submit a dataset copy)
+data/
+kb/
+practice/
+Capstone_Project_Dataset_FTTT_2026/
+hidden_test.csv
+
+# Generated files and recordings
+eval_results/
+input/
+output/
+outputs/
+ui_output/
+chroma_db/
+temp_*.wav
+diag_*.wav
+test16k.wav
+last_upload.*
+*.error.txt
+*.mp4

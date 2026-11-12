@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZentroMart support line</title>
+<style>
+:root{--bg:#eef2f7;--panel:#fff;--ink:#12203a;--muted:#5d6b82;--line:#d9e0ea;--agent:#0e8f7e;--listen:#e5484d;--work:#d98a1f;--soft:#f5f7fb;--blue:#2f6fed;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1424;--panel:#151e33;--ink:#e8edf6;--muted:#93a1ba;--line:#26324b;--agent:#2fc4b0;--listen:#ff6b70;--work:#f2a33a;--soft:#1b2640;--blue:#6e9bff}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Segoe UI Variable","Segoe UI",system-ui,sans-serif;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 24px;border-bottom:1px solid var(--line);background:var(--panel)}
+header h1{font-size:17px;margin:0;font-weight:650}
+header p{margin:0;color:var(--muted);font-size:13px}
+.right{display:flex;align-items:center;gap:10px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.5}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--agent);outline-offset:2px}
+.ghost{background:none;border:1px solid var(--line);border-radius:8px;padding:6px 12px}
+.ghost:hover:not(:disabled){background:var(--soft)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:600;background:var(--soft);color:var(--muted)}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.chip.ok{color:var(--agent);background:color-mix(in srgb,var(--agent) 15%,transparent)}
+.chip.warn{color:var(--work);background:color-mix(in srgb,var(--work) 15%,transparent)}
+main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;padding:16px 24px;max-width:1180px;width:100%;margin:0 auto}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.callbar{display:flex;align-items:center;gap:14px;padding:10px 16px;border-bottom:1px solid var(--line)}
+.orbwrap{position:relative;width:104px;height:104px;flex:none}
+.orbwrap canvas{position:absolute;inset:0;width:100%;height:100%}
+#mic{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;border:0;background:var(--ink);color:var(--panel);display:grid;place-items:center;transition:transform .15s,background .2s}
+#mic:hover:not(:disabled){transform:scale(1.06)}
+#mic svg{width:22px;height:22px}
+body[data-s=listening] #mic{background:var(--listen)}
+body[data-s=processing] #mic{background:var(--work)}
+body[data-s=speaking] #mic{background:var(--agent)}
+#status{font-weight:650;font-size:16px}
+#sub{color:var(--muted);font-size:13px;min-height:20px}
+#log{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:0}
+.msg{max-width:84%;padding:9px 13px;border-radius:14px;overflow-wrap:anywhere}
+.you{align-self:flex-end;background:var(--ink);color:var(--panel);border-bottom-right-radius:4px}
+.bot{align-self:flex-start;background:var(--soft);border:1px solid var(--line);border-bottom-left-radius:4px}
+.sys{align-self:center;color:var(--muted);font-size:13px;text-align:center;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
+.sys button{background:none;border:1px solid var(--line);border-radius:8px;padding:2px 10px;font-size:13px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:7px;font-size:12px;color:var(--muted)}
+.cite{padding:1px 8px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-weight:600;color:var(--ink);cursor:help}
+.listen{display:none;align-items:center;gap:5px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:2px 10px;font-size:12px}
+.listen.on{display:inline-flex}
+.listen svg{width:11px;height:11px}
+#banner{margin:0 16px 8px;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,var(--agent) 14%,transparent);color:var(--agent);font-weight:600;font-size:14px}
+#sugg{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 8px}
+#sugg button{background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:13px}
+#sugg button:hover:not(:disabled){border-color:var(--agent)}
+form{display:flex;gap:8px;padding:10px 16px 14px;border-top:1px solid var(--line)}
+input[type=text]{flex:1;min-width:0;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:inherit}
+form button{background:var(--ink);color:var(--panel);border:0;border-radius:10px;padding:9px 16px}
+aside{display:flex;flex-direction:column;gap:12px;min-height:0;overflow-y:auto}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+h2{font-size:14px;margin:0 0 8px;font-weight:650}
+.empty{color:var(--muted);font-size:13px;margin:0}
+.pill{display:inline-block;padding:3px 12px;border-radius:999px;font-weight:650;font-size:14px;background:var(--soft)}
+.pill.s-shipped{color:var(--blue);background:color-mix(in srgb,var(--blue) 15%,transparent)}
+.pill.s-delivered{color:var(--agent);background:color-mix(in srgb,var(--agent) 15%,transparent)}
+.pill.s-cancelled,.pill.s-returned{color:var(--listen);background:color-mix(in srgb,var(--listen) 14%,transparent)}
+.key{margin:8px 0 2px;font-size:15px;font-weight:600}
+.late{color:var(--listen)}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:13px}
+dt{color:var(--muted)}dd{margin:0;text-align:right;overflow-wrap:anywhere}
+details{font-size:13px;margin-top:8px}
+summary{cursor:pointer;font-weight:600}
+details dl,details p{margin-top:6px}
+details p{color:var(--muted);white-space:pre-wrap;margin-bottom:6px}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:600}
+.ok{background:color-mix(in srgb,var(--agent) 18%,transparent);color:var(--agent)}
+.bad{background:color-mix(in srgb,var(--listen) 16%,transparent);color:var(--listen)}
+footer{padding:6px 24px 12px;text-align:center;color:var(--muted);font-size:12px}
+@media (max-width:860px){main{grid-template-columns:1fr;padding:12px}aside{overflow:visible}header{padding:10px 12px}}
+@media (prefers-reduced-motion:reduce){#mic{transition:none}}
+</style>
+</head>
+<body data-s="idle">
+<header>
+  <div><h1>ZentroMart support line</h1><p>Ask about an order, a return or a refund.</p></div>
+  <div class="right"><span class="chip" id="vchip">Not verified</span><button class="ghost" id="newcall" type="button">New call</button></div>
+</header>
+<main>
+  <div class="stage">
+    <div class="callbar">
+      <div class="orbwrap">
+        <canvas id="wave" aria-hidden="true"></canvas>
+        <button id="mic" type="button" aria-label="Start speaking"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+      </div>
+      <div><div id="status" role="status" aria-live="polite">Ready</div><div id="sub">Tap the microphone and speak.</div></div>
+    </div>
+    <div id="log" aria-live="polite"></div>
+    <div id="banner" hidden></div>
+    <div id="sugg"></div>
+    <form id="tf"><input type="text" id="ti" placeholder="Or type a message" autocomplete="off" maxlength="500"><button type="submit">Send</button></form>
+  </div>
+  <aside>
+    <section><h2>Order</h2><div id="order"></div></section>
+    <section><h2>Ticket</h2><div id="ticket"></div></section>
+    <section><details id="diag" style="margin:0"><summary>Diagnostics</summary><div id="time"></div><div id="src"></div></details></section>
+  </aside>
+</main>
+<footer>Voice by Gnani. ZentroMart is a fictional store used for the VoiceOps capstone.</footer>
+<script>
+const $=s=>document.querySelector(s);
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e;};
+const cap=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
+let sid='web-'+Math.random().toString(36).slice(2,8);
+let rec=null,chunks=[],stream=null,actx=null,analyser=null,freq=null,recTimer=null,player=null,status='idle',busy=false,closed=false,heard=false,quietSince=0,t0=0,diag={},tInt=null,tStart=0,tLabel='';
+const td=new Uint8Array(256),reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const TITLE={idle:'Ready',listening:'Listening',processing:'Working on it',speaking:'Speaking'};
+const SUGG=['Where is my order?','Can I return electronics?','I want to speak to a person'];
+
+/* ---------- status + progress ---------- */
+function setStatus(s){status=s;document.body.dataset.s=s;$('#status').textContent=TITLE[s];busy=(s==='processing');
+  $('#mic').setAttribute('aria-label',s==='listening'?'Stop and send':'Start speaking');}
+function stage(label){clearInterval(tInt);tStart=performance.now();tLabel=label;tick();tInt=setInterval(tick,250);}
+function tick(){$('#sub').textContent=tLabel+' · '+Math.floor((performance.now()-tStart)/1000)+' s';}
+function stageEnd(txt){clearInterval(tInt);$('#sub').textContent=txt||'';}
+function idle(){setStatus('idle');stageEnd(closed?'This call is closed.':'Tap the microphone and speak.');}
+
+/* ---------- messages ---------- */
+function addMsg(kind,text,o){o=o||{};const m=el('div','msg '+kind);m.append(el('div','t',text));
+  if(kind==='bot'){const meta=el('div','meta');
+    if(o.cited&&o.cited.length){meta.append(el('span','','Based on'));
+      o.cited.forEach(id=>{const c=el('span','cite',id);const ch=(o.chunks||[]).find(x=>x.section_id===id);
+        if(ch)c.title=(ch.source||'').replace(/\.md$/,'')+': '+(ch.text||'').slice(0,160);meta.append(c);});}
+    const b=el('button','listen');b.type='button';b.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Listen';meta.append(b);m.append(meta);m._btn=b;}
+  const log=$('#log');log.append(m);log.scrollTop=log.scrollHeight;return m;}
+function addSys(text,retry){const m=el('div','msg sys');m.append(el('span','',text));
+  if(retry){const b=el('button','','Try again');b.type='button';b.onclick=()=>{m.remove();$('#mic').click();};m.append(b);}
+  const log=$('#log');log.append(m);log.scrollTop=log.scrollHeight;}
+function attachAudio(m,url,autoplay){const b=m._btn;b.classList.add('on');const a=new Audio(url);
+  a.onplay=()=>{setStatus('speaking');stageEnd('Playing the reply');};
+  a.onended=a.onerror=()=>{if(player===a)player=null;idle();};
+  b.onclick=()=>{if(player)player.pause();player=a;a.currentTime=0;a.play().catch(()=>{});};
+  if(autoplay){player=a;a.play().catch(()=>idle());}else idle();}
+
+/* ---------- microphone ---------- */
+function watchSilence(){if(status!=='listening'||!analyser)return;analyser.getByteTimeDomainData(td);
+  let s=0;for(let i=0;i<td.length;i++){const v=(td[i]-128)/128;s+=v*v;}
+  const rms=Math.sqrt(s/td.length),now=performance.now();
+  if(rms>0.04){heard=true;quietSince=0;}else if(heard){if(!quietSince)quietSince=now;else if(now-quietSince>1300){stop();return;}}
+  setTimeout(watchSilence,100);}
+async function start(){
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:true});}
+  catch(e){addSys('The microphone is blocked. Allow microphone access in the browser, then try again.');return;}
+  actx=new (window.AudioContext||window.webkitAudioContext)();analyser=actx.createAnalyser();analyser.fftSize=256;
+  actx.createMediaStreamSource(stream).connect(analyser);freq=new Uint8Array(analyser.frequencyBinCount);
+  const type=['audio/webm;codecs=opus','audio/webm','audio/mp4'].find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported(t))||'';
+  rec=new MediaRecorder(stream,type?{mimeType:type}:{});chunks=[];
+  rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+  rec.onstop=()=>{const blob=new Blob(chunks,{type:rec.mimeType||'audio/webm'});release();
+    if(blob.size<2500){addSys('That was too short. Hold on a little longer and try again.',true);idle();return;}
+    voiceTurn(blob);};
+  rec.start();setStatus('listening');stage('Listening');heard=false;quietSince=0;recTimer=setTimeout(stop,55000);watchSilence();}
+function stop(){clearTimeout(recTimer);if(rec&&rec.state!=='inactive')rec.stop();}
+function release(){if(stream)stream.getTracks().forEach(t=>t.stop());if(actx)actx.close();analyser=null;}
+$('#mic').onclick=()=>{if(busy||closed)return;if(player){player.pause();player=null;}status==='listening'?stop():start();};
+addEventListener('keydown',e=>{if(e.code==='Space'&&!['INPUT','BUTTON'].includes(document.activeElement.tagName)){e.preventDefault();$('#mic').click();}});
+
+/* ---------- turn flow: transcribe -> answer -> voice ---------- */
+async function api(url,body,form){const r=await fetch(url,form?{method:'POST',body}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok)throw new Error('server returned '+r.status);return r.json();}
+function begin(){$('#sugg').hidden=true;t0=performance.now();diag={};setStatus('processing');}
+async function voiceTurn(blob){
+  begin();stage('Transcribing your voice');
+  const fd=new FormData();fd.append('audio',blob,'rec.'+(blob.type.includes('mp4')?'mp4':'webm'));fd.append('session_id',sid);
+  let r;try{r=await api('/api/stt',fd,true);}catch(e){addSys('I couldn’t reach the server. Check that it is still running.',true);diag.error=e.message;renderDiag();idle();return;}
+  Object.assign(diag,r.timings||{});
+  if(r.failed){diag.error=r.error;renderDiag();addSys('I couldn’t hear that clearly. Please try again.',true);idle();return;}
+  if(!r.transcript){const t='Sorry, I didn’t catch that. Could you say it again?';await speak(addMsg('bot',t),t);return;}
+  addMsg('you',r.transcript);await respond(r.transcript);}
+async function sendText(text){if(busy||closed||!text)return;addMsg('you',text);begin();await respond(text);}
+async function respond(text){
+  stage('Checking your order and our policies');
+  let a;try{a=await api('/api/answer',{session_id:sid,text});}catch(e){addSys('The assistant didn’t respond ('+e.message+'). Try again.',true);diag.error=e.message;renderDiag();idle();return;}
+  Object.assign(diag,a.timings||{});diag.sections=a.chunks;if(a.error)diag.error=a.error;
+  render(a);const m=addMsg('bot',a.reply_text,{cited:a.cited,chunks:a.chunks});
+  if(a.handover_done||(a.ticket&&a.ticket.created))lock(a.ticket&&a.ticket.ticket_id);
+  await speak(m,a.reply_text);}
+async function speak(m,text){
+  stage('Preparing the voice reply');
+  try{const v=await api('/api/tts',{session_id:sid,text});Object.assign(diag,v.timings||{});
+    diag.total=Math.round((performance.now()-t0)/100)/10;renderDiag();
+    if(v.audio_url)attachAudio(m,v.audio_url,true);else{addSys('The voice reply is unavailable right now. The text answer is shown above.');idle();}}
+  catch(e){diag.total=Math.round((performance.now()-t0)/100)/10;renderDiag();addSys('The voice reply is unavailable right now. The text answer is shown above.');idle();}}
+function lock(id){closed=true;const b=$('#banner');b.hidden=false;
+  b.textContent='Passed to a human agent'+(id?' · Ticket '+id:'')+'. This call is closed. Use New call to start again.';
+  $('#mic').disabled=true;$('#ti').disabled=true;$('#tf button').disabled=true;}
+$('#tf').onsubmit=e=>{e.preventDefault();const t=$('#ti').value.trim();$('#ti').value='';sendText(t);};
+$('#newcall').onclick=async()=>{if(player){player.pause();player=null;}if(rec&&rec.state!=='inactive'){rec.onstop=release;rec.stop();}
+  try{await api('/api/reset',{session_id:sid});}catch(e){}
+  sid='web-'+Math.random().toString(36).slice(2,8);closed=false;diag={};
+  $('#log').replaceChildren();$('#banner').hidden=true;$('#sugg').hidden=false;
+  $('#mic').disabled=false;$('#ti').disabled=false;$('#tf button').disabled=false;
+  renderOrder(null);$('#ticket').replaceChildren(el('p','empty','No ticket created.'));$('#time').replaceChildren();$('#src').replaceChildren();
+  setChip(false,false);idle();addSys('Tap the microphone and say something like “Where is my order?”');};
+
+/* ---------- panels ---------- */
+function setChip(verified,order){const c=$('#vchip');c.className='chip '+(verified?'ok':order?'warn':'');c.textContent=verified?'Verified':order?'Verification needed':'Not verified';}
+const LABEL={placed_at:'Placed',payment_method:'Payment',delivery_type:'Delivery',shipped_on:'Shipped on',promised_date:'Promised date',days_late:'Days late',items:'Items in order'};
+function fmt(k,v){if(typeof v==='boolean')return v?'Yes':'No';
+  if(typeof v==='string'){if(/^\d{4}-\d{2}-\d{2}T/.test(v)){const d=new Date(v);if(!isNaN(d))return d.toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+    if(/^(upi|cod)$/i.test(v))return v.toUpperCase();return cap(v.replace(/_/g,' '));}return String(v);}
+function renderOrder(o){const box=$('#order');
+  if(!o){box.replaceChildren(el('p','empty','Order details appear here once the caller is verified.'));return;}
+  const f=o.fields||{},frag=document.createDocumentFragment(),st=String(f.status||'unknown').toLowerCase();
+  frag.append(el('span','pill s-'+st,cap(st.replace(/_/g,' '))),el('div','key','Order '+o.order_id));
+  if(f.promised_date)frag.append(el('div','',(f.delivered===true?'Promised for ':'Promised by ')+f.promised_date));
+  if(Number(f.days_late)>0)frag.append(el('div','late','Running '+f.days_late+' day'+(Number(f.days_late)>1?'s':'')+' late'));
+  const skip=new Set(['status','promised_date','days_late']),rows=Object.entries(f).filter(([k])=>!skip.has(k)&&k!=='order_id');
+  if(rows.length){const d=el('details'),dl=el('dl');d.append(el('summary','','More details'));
+    rows.forEach(([k,v])=>{dl.append(el('dt','',LABEL[k]||cap(k.replace(/_/g,' '))),el('dd','',fmt(k,v)));});d.append(dl);frag.append(d);}
+  box.replaceChildren(frag);}
+function render(a){setChip(a.verified,a.order_in_context);renderOrder(a.order);
+  if(a.ticket){const b=el('span','badge '+(a.ticket.created?'ok':'bad'),a.ticket.created?'Ticket created'+(a.ticket.ticket_id?' · '+a.ticket.ticket_id:''):'Ticket not created');$('#ticket').replaceChildren(b);}}
+const TL={ffmpeg_convert:'Audio preparation',stt:'Speech to text',router:'Understanding',tools:'Order lookup',rag:'Policy search',answer:'Writing the reply',tts:'Voice reply',total:'Total, from end of speech'};
+function renderDiag(){const dl=el('dl');Object.keys(TL).forEach(k=>{if(diag[k]!==undefined){dl.append(el('dt','',TL[k]),el('dd','',diag[k]+' s'));}});
+  const frag=document.createDocumentFragment();frag.append(dl);if(diag.error)frag.append(el('p','','Technical detail: '+String(diag.error).slice(0,200)));
+  $('#time').replaceChildren(frag);
+  const s=$('#src'),secs=diag.sections||[];s.replaceChildren();
+  if(secs.length){s.append(el('p','','All sections retrieved for this answer:'));secs.forEach(c=>{const d=el('details'),sm=el('summary','',c.section_id+(c.source?' ('+c.source.replace(/\.md$/,'')+')':''));d.append(sm,el('p','',(c.text||'').slice(0,400)));s.append(d);});}}
+
+/* ---------- suggested prompts ---------- */
+SUGG.forEach(t=>{const b=el('button','',t);b.type='button';b.onclick=()=>sendText(t);$('#sugg').append(b);});
+
+/* ---------- radial waveform ---------- */
+const cv=$('#wave'),g=cv.getContext('2d'),dpr=devicePixelRatio||1,SZ=104;cv.width=SZ*dpr;cv.height=SZ*dpr;g.scale(dpr,dpr);
+const N=40,C=SZ/2;
+function frame(ts){g.clearRect(0,0,SZ,SZ);
+  const col=getComputedStyle(document.body).getPropertyValue(status==='listening'?'--listen':status==='processing'?'--work':'--agent');
+  g.strokeStyle=col.trim()||'#0e8f7e';g.lineCap='round';g.lineWidth=2.4;
+  if(analyser)analyser.getByteFrequencyData(freq);
+  for(let i=0;i<N;i++){let a=.06;
+    if(status==='listening'&&analyser)a=freq[2+Math.floor(i/N*60)]/255;
+    else if(status==='speaking'&&!reduce)a=.3+.3*Math.sin(ts/170+i*.55)*Math.sin(ts/610+i*.2);
+    else if(status==='processing'&&!reduce)a=((i/N-(ts/1100)%1+1)%1)<.18?.7:.08;
+    const len=3+a*20,ang=i/N*Math.PI*2-Math.PI/2,r0=31;
+    g.beginPath();g.moveTo(C+Math.cos(ang)*r0,C+Math.sin(ang)*r0);g.lineTo(C+Math.cos(ang)*(r0+len),C+Math.sin(ang)*(r0+len));g.stroke();}
+  requestAnimationFrame(frame);}
+renderOrder(null);$('#ticket').append(el('p','empty','No ticket created.'));
+addSys('Tap the microphone and say something like “Where is my order?”');idle();requestAnimationFrame(frame);
+</script>
+</body>
+</html>
