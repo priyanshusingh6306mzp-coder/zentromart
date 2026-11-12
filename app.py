@@ -19,6 +19,8 @@ for _var in ("GNANI_API_KEY", "GROQ_API_KEY"):
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(BASE, "src"))
+from config import check_dataset
+check_dataset()
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
@@ -130,12 +132,15 @@ def answer_step(body: AnswerIn):
         print(f"[answer error] {error}", flush=True)
         reply = SYSTEM_FAIL_REPLY
     tools = (meta or {}).get("tools", {})
+    ticket = tools.get("create_ticket")
+    if ticket and ticket.get("ticket_id"):
+        ticket = {**ticket, "ticket_id": str(ticket["ticket_id"])[:12]}     # short id for display
     return {
         "reply_text": reply,
         "chunks": (meta or {}).get("chunks", []),
         "cited": (meta or {}).get("cited", []),
         "order": _order_card(convo),
-        "ticket": tools.get("create_ticket"),
+        "ticket": ticket,
         "verified": convo.is_verified,
         "order_in_context": bool(convo.order_id),
         "handover_done": convo.handover_done,

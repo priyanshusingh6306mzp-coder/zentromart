@@ -15,6 +15,9 @@ for _var in ("GNANI_API_KEY", "GROQ_API_KEY"):
         sys.exit(f"ERROR: {_var} is missing. Copy .env.example to .env and fill it in.")
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))
+from config import check_dataset
+check_dataset()
+
 from groq import Groq
 from agent import Conversation, process_turn
 from voice import speech_to_text, text_to_speech, STTAPIError, AudioError

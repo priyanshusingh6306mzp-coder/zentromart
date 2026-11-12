@@ -8,14 +8,17 @@ __pycache__/
 data/
 kb/
 practice/
+tools/
 Capstone_Project_Dataset_FTTT_2026/
 hidden_test.csv
 
 # Generated files and recordings
+.index/
 eval_results/
 input/
 output/
 outputs/
+out_*/
 ui_output/
 chroma_db/
 temp_*.wav
